@@ -92,7 +92,7 @@ coreos:
         --insecure-bind-address=0.0.0.0 \
         --insecure-port=8080 \
         --kubelet-https=true \
-        --secure-port=6443 \
+        --secure-port=443 \
         --service-cluster-ip-range=10.100.0.0/16 \
         --etcd-servers=http://127.0.0.1:2379 \
         --public-address-override=${DEFAULT_IPV4} \
@@ -112,6 +112,7 @@ coreos:
         ExecStartPre=/usr/bin/chmod +x /opt/bin/kube-controller-manager
         ExecStart=/opt/bin/kube-controller-manager \
         --service-account-private-key-file=/opt/bin/kube-serviceaccount.key \
+        --root-ca-file=/var/run/kubernetes/apiserver.cert \
         --master=127.0.0.1:8080 \
         --logtostderr=true
         Restart=always
