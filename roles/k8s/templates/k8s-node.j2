@@ -25,6 +25,12 @@ coreos:
     - name: flanneld.service
       command: start
     - name: docker.service
+      drop-ins:
+        - name: 40-flannel.conf
+          content: |
+            [Unit]
+            Requires=flanneld.service
+            After=flanneld.service
       command: start
     - name: setup-network-environment.service
       command: start
