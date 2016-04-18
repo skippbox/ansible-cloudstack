@@ -95,9 +95,8 @@ coreos:
         --admission-control=NamespaceLifecycle,NamespaceAutoProvision,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota \
         --runtime-config=api/v1 \
         --allow-privileged=true \
-        --insecure-bind-address=0.0.0.0 \
         --insecure-port=8080 \
-        --secure-port=6443 \
+        --secure-port=443 \
         --service-cluster-ip-range=10.100.0.0/16 \
         --etcd-servers=http://127.0.0.1:2379 \
         --bind-address=0.0.0.0 \

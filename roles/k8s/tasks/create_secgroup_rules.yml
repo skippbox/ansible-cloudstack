@@ -50,6 +50,14 @@
      end_port: 2380
      user_security_group: "{{ k8s_security_group_name }}"
 
+  - name: k8s secure
+    local_action:
+     module: cs_securitygroup_rule
+     security_group: "{{ k8s_security_group_name }}"
+     start_port: 443
+     end_port: 443
+     user_security_group: "{{ k8s_security_group_name }}"
+
   - name: flannel UDP 8472
     local_action:
      module: cs_securitygroup_rule
