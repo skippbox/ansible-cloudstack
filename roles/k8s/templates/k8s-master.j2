@@ -100,6 +100,7 @@ coreos:
         --service-cluster-ip-range=10.100.0.0/16 \
         --etcd-servers=http://127.0.0.1:2379 \
         --bind-address=0.0.0.0 \
+        --insecure-bind-address=0.0.0.0 \
         --logtostderr=true
         Restart=always
         RestartSec=10
