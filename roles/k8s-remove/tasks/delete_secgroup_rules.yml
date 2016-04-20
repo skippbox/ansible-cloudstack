@@ -66,6 +66,16 @@
      user_security_group: "{{ k8s_security_group_name }}"
      state: absent
 
+  - name: Remove secure 443
+    local_action:
+     module: cs_securitygroup_rule
+     security_group: "{{ k8s_security_group_name }}"
+     start_port: 443
+     end_port: 443
+     protocol: tcp
+     user_security_group: "{{ k8s_security_group_name }}"
+     state: absent
+
 #k8s api
   - name: Remove k8s 8080
     local_action:
