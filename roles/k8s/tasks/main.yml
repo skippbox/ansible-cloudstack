@@ -3,3 +3,4 @@
   - include: create_secgroup_rules.yml
   - include: create_vm.yml
   - include: create_inv.yml
+  - include: create_context.yml
