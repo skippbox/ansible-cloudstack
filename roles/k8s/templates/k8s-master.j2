@@ -6,6 +6,7 @@ write-files:
     permissions: '0644'
     content: |
       OPTS_RPC_MOUNTD=""
+
   - path: /opt/bin/wupiao
     permissions: '0755'
     content: |
@@ -17,8 +18,43 @@ write-files:
         done;
       exit $?
 
+  - path: /srv/kubernetes/manifests/kube-system.json
+    content: |
+        {
+          "apiVersion": "v1",
+          "kind": "Namespace",
+          "metadata": {
+            "name": "kube-system"
+          }
+        }
+
+  - path: /opt/bin/install-kube-system
+    permissions: 0700
+    owner: root:root
+    content: |
+      #!/bin/bash -e
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-controller.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-controller.json
+
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-service.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-service.json
+
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/skydns-svc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/skydns-svc.json
+
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/skydns-rc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/skydns-rc.json
+
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/kube-system.json" "http://127.0.0.1:8080/api/v1/namespaces"
+
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/dashboard-service.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
+
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/dashboard-controller.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
+
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/skydns-svc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
+
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/skydns-rc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
+
 hostname: master
+
 coreos:
+
   etcd2:
     name: master
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
@@ -28,9 +64,33 @@ coreos:
     initial-advertise-peer-urls: http://$private_ipv4:2380
     initial-cluster: master=http://$private_ipv4:2380
     initial-cluster-state: new
+
   fleet:
     metadata: "role=master"
+
   units:
+    - name: fleet.service
+      command: start
+
+    - name: flanneld.service
+      command: start
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Unit]
+            Requires=etcd2.service
+            [Service]
+            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"10.244.0.0/16", "Backend": {"Type": "vxlan"}}'
+
+    - name: docker.service
+      command: start
+      drop-ins:
+        - name: 40-flannel.conf
+          content: |
+            [Unit]
+            Requires=flanneld.service
+            After=flanneld.service
+
     - name: generate-serviceaccount-key.service
       command: start
       content: |
@@ -41,6 +101,7 @@ coreos:
         ExecStart=/bin/openssl genrsa -out /opt/bin/kube-serviceaccount.key 2048 2>/dev/null
         RemainAfterExit=yes
         Type=oneshot
+
     - name: setup-network-environment.service
       command: start
       content: |
@@ -56,25 +117,21 @@ coreos:
         ExecStart=/opt/bin/setup-network-environment
         RemainAfterExit=yes
         Type=oneshot
-    - name: fleet.service
+
+    - name: install-kube-system.service
       command: start
-    - name: flanneld.service
-      command: start
-      drop-ins:
-        - name: 50-network-config.conf
-          content: |
-            [Unit]
-            Requires=etcd2.service
-            [Service]
-            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{"Network":"10.244.0.0/16", "Backend": {"Type": "vxlan"}}'
-    - name: docker.service
-      drop-ins:
-        - name: 40-flannel.conf
-          content: |
-            [Unit]
-            Requires=flanneld.service
-            After=flanneld.service
-      command: start
+      content: |
+        [Unit]
+        Requires=kube-apiserver.service
+        After=kube-apiserver.service
+
+        [Service]
+        Type=simple
+        StartLimitInterval=0
+        Restart=on-failure
+        ExecStartPre=/usr/bin/curl http://127.0.0.1:8080/version
+        ExecStart=/opt/bin/install-kube-system
+
     - name: kube-apiserver.service
       command: start
       content: |
@@ -104,6 +161,7 @@ coreos:
         --logtostderr=true
         Restart=always
         RestartSec=10
+
     - name: kube-controller-manager.service
       command: start
       content: |
@@ -122,6 +180,7 @@ coreos:
         --logtostderr=true
         Restart=always
         RestartSec=10
+
     - name: kube-scheduler.service
       command: start
       content: |
@@ -136,6 +195,7 @@ coreos:
         ExecStart=/opt/bin/kube-scheduler --master=127.0.0.1:8080
         Restart=always
         RestartSec=10
+
   update:
     group: alpha
     reboot-strategy: off

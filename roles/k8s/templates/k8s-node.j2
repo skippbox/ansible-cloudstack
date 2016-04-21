@@ -82,6 +82,8 @@ coreos:
         ExecStart=/opt/bin/kubelet \
         --address=0.0.0.0 \
         --port=10250 \
+        --cluster-dns=10.0.0.10 \
+        --cluster-domain=cluster.local \
         --hostname-override=${DEFAULT_IPV4} \
         --api-servers={{ k8s_master.default_ip }}:8080 \
         --allow-privileged=true \
