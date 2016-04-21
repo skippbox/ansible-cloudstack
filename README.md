@@ -17,7 +17,7 @@ You will need Ansible >= 2.0, sshpubkeys and [cs](https://github.com/exoscale/cs
 Setup cloudstack
 ----------------
 
-Create a `~/.cloudstack.ini` file with your creds and cloudstack endpoint:
+Create a `~/.cloudstack.ini` file with your creds and cloudstack endpoint, for example:
 
     [cloudstack]
     endpoint = https://api.exoscale.ch/compute
@@ -40,9 +40,7 @@ Check the tasks and templates in `roles/k8s`.
 Test your cluster
 -----------------
 
-First spawn a tunnel to your master node with:
-
-    $ ssh -nNT -L 8080:127.0.0.1:8080 -i ~/.ssh/id_rsa_k8s core@<master-node-ip>
+You will need `kubectl` CLI installed, the playbook will configure, set and use a new context automatically.
 
 Then run
 
