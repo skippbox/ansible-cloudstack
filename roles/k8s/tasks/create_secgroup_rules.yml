@@ -76,9 +76,9 @@
      end_port: 8080
      user_security_group: "{{ k8s_security_group_name }}"
 
-  - name: k8s public 8080
+  - name: k8s public secure
     local_action:
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
-     start_port: 8080
-     end_port: 8080    
+     start_port: 443
+     end_port: 443   
