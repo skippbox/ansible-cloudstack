@@ -65,7 +65,16 @@
      start_port: 8472
      end_port: 8472
      protocol: udp
-     user_security_group: "{{ k8s_security_group_name }}"     
+     user_security_group: "{{ k8s_security_group_name }}"
+
+  - name: kubelet logs and exec TCP 10250
+    local_action:
+     module: cs_securitygroup_rule
+     security_group: "{{ k8s_security_group_name }}"
+     start_port: 10250
+     end_port: 10250
+     protocol: tcp
+     user_security_group: "{{ k8s_security_group_name }}"
 
 #k8s api
   - name: k8s 8080
@@ -81,4 +90,4 @@
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
      start_port: 443
-     end_port: 443   
+     end_port: 443
