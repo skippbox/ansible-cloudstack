@@ -10,39 +10,16 @@
 
 # Rules for the k8s security group
 
-  - name: SSH for k8s
+# internal
+  - name: flannel etcd 2379
     local_action:
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
-     start_port: 22
-     end_port: 22
-
-#etcd
-  - name: etcd 4001
-    local_action:
-     module: cs_securitygroup_rule
-     security_group: "{{ k8s_security_group_name }}"
-     start_port: 4001
-     end_port: 4001
+     start_port: 2379
+     end_port: 2379
      user_security_group: "{{ k8s_security_group_name }}"
 
-  - name: etcd 7001
-    local_action:
-     module: cs_securitygroup_rule
-     security_group: "{{ k8s_security_group_name }}"
-     start_port: 7001
-     end_port: 7001
-     user_security_group: "{{ k8s_security_group_name }}"
-
-  - name: etcd 2379
-    local_action:
-     module: cs_securitygroup_rule
-     security_group: "{{ k8s_security_group_name }}"
-     start_port: 7001
-     end_port: 7001
-     user_security_group: "{{ k8s_security_group_name }}"
-
-  - name: etcd 2380
+  - name: flannel etcd 2380
     local_action:
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
@@ -50,12 +27,12 @@
      end_port: 2380
      user_security_group: "{{ k8s_security_group_name }}"
 
-  - name: k8s secure
+  - name: k8s 8080
     local_action:
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
-     start_port: 443
-     end_port: 443
+     start_port: 8080
+     end_port: 8080
      user_security_group: "{{ k8s_security_group_name }}"
 
   - name: flannel UDP 8472
@@ -76,14 +53,14 @@
      protocol: tcp
      user_security_group: "{{ k8s_security_group_name }}"
 
-#k8s api
-  - name: k8s 8080
+# external access
+
+  - name: SSH for k8s
     local_action:
      module: cs_securitygroup_rule
      security_group: "{{ k8s_security_group_name }}"
-     start_port: 8080
-     end_port: 8080
-     user_security_group: "{{ k8s_security_group_name }}"
+     start_port: 22
+     end_port: 22
 
   - name: k8s public secure
     local_action:
