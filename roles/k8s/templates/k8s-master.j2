@@ -39,23 +39,19 @@ write-files:
     owner: root:root
     content: |
       #!/bin/bash -e
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-controller.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-controller.json
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-controller.yaml https://raw.githubusercontent.com/kubernetes/dashboard/v1.5.0/src/deploy/kubernetes-dashboard.yaml
 
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-service.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-service.json
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/kube-dns-svc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/kube-dns-svc.json
 
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/skydns-svc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/skydns-svc.json
-
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/skydns-rc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/skydns-rc.json
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/kube-dns-rc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/kube-dns-rc.json
 
       /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/kube-system.json" "http://127.0.0.1:8080/api/v1/namespaces"
 
-      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/dashboard-service.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
-
       /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/dashboard-controller.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
 
-      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/skydns-svc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/kube-dns-svc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/services"
 
-      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/skydns-rc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
+      /usr/bin/curl -H "Content-Type: application/json" -XPOST -d @"/srv/kubernetes/manifests/kube-dns-rc.json" "http://127.0.0.1:8080/api/v1/namespaces/kube-system/replicationcontrollers"
 
 hostname: master
 
