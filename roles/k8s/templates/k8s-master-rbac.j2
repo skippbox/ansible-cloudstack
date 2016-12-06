@@ -39,9 +39,7 @@ write-files:
     owner: root:root
     content: |
       #!/bin/bash -e
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-controller.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-controller.json
-
-      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-service.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/dashboard-service.json
+      /usr/bin/curl -L -o /srv/kubernetes/manifests/dashboard-controller.yaml https://raw.githubusercontent.com/kubernetes/dashboard/v1.5.0/src/deploy/kubernetes-dashboard.yaml
 
       /usr/bin/curl -L -o /srv/kubernetes/manifests/kube-dns-svc.json https://raw.githubusercontent.com/skippbox/configk8s/master/json/kube-dns-svc.json
 
@@ -155,6 +153,9 @@ coreos:
         --service-account-lookup=false \
         --basic-auth-file=/srv/kubernetes/basicauth.csv \
         --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+        --authorization-mode=RBAC \
+        --authorization-rbac-super-user={{ k8s_username }} \
+        --runtime-config=api/v1,rbac.authorization.k8s.io/v1alpha1 \
         --allow-privileged=true \
         --insecure-port=8080 \
         --secure-port=443 \
